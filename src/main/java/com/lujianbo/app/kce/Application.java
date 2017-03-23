@@ -28,6 +28,7 @@ public class Application {
 
         try {
             Application application=new Application(Config.readConfig());
+            KafkaInput kafkaInput=application.generateKafkaInput();
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -51,6 +51,10 @@ public class KafkaInput implements Closeable{
         }
     }
 
+    public void commit(){
+        consumer.commitAsync();
+    }
+
 
     private void reConnect() {
         this.consumer.close();
