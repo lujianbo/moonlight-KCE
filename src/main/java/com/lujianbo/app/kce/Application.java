@@ -1,8 +1,11 @@
 package com.lujianbo.app.kce;
 
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+
 import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 public class Application {
 
@@ -29,6 +32,7 @@ public class Application {
         try {
             Application application=new Application(Config.readConfig());
             KafkaInput kafkaInput=application.generateKafkaInput();
+
 
         } catch (Exception e) {
             e.printStackTrace();

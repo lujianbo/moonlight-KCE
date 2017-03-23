@@ -3,20 +3,17 @@ package com.lujianbo.app.kce;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.TopicPartition;
 
-import java.io.Closeable;
-import java.io.IOException;
+
 import java.util.Collections;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Properties;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Created by jianbo on 2017/3/23.
  */
-public class KafkaInput implements Closeable{
+public class KafkaInput implements Supplier<ConsumerRecord<byte[], byte[]>> {
 
     private KafkaConsumer<byte[], byte[]> consumer;
 
@@ -25,6 +22,8 @@ public class KafkaInput implements Closeable{
     private final String topic;
 
     private  boolean isAutoCommit;
+
+    private Iterator<ConsumerRecord<byte[], byte[]>> iterator;
 
     public KafkaInput(Properties props, String topic) {
         this.properties = props;
@@ -38,23 +37,9 @@ public class KafkaInput implements Closeable{
         isAutoCommit="true".equals(properties.getProperty("enable.auto.commit"));
     }
 
-    public void fetch(int timeout, Consumer<List<ConsumerRecord<byte[], byte[]>>> handler) {
-        ConsumerRecords<byte[], byte[]> records = consumer.poll(timeout);
-        for (TopicPartition partition : records.partitions()) {
-            List<ConsumerRecord<byte[], byte[]>> partitionRecords = records.records(partition);
-            handler.accept(partitionRecords);
-            long lastOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
-            consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
-        }
-        if (!isAutoCommit) {
-            consumer.commitAsync();
-        }
-    }
-
-    public void commit(){
+    public void commitAsync(){
         consumer.commitAsync();
     }
-
 
     private void reConnect() {
         this.consumer.close();
@@ -62,7 +47,18 @@ public class KafkaInput implements Closeable{
     }
 
     @Override
-    public void close() throws IOException {
-
+    public ConsumerRecord<byte[], byte[]> get() {
+        ConsumerRecord<byte[], byte[]> result=null;
+        while (result==null){
+            if (this.iterator!=null&&iterator.hasNext()){
+                result= iterator.next();
+            }else {
+                if (!isAutoCommit) {
+                    consumer.commitAsync();
+                }
+                this.iterator = consumer.poll(1000).iterator();
+            }
+        }
+        return result;
     }
 }
