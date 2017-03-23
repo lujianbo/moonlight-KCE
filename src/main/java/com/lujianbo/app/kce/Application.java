@@ -1,9 +1,38 @@
 package com.lujianbo.app.kce;
 
-/**
- * Created by jianbo on 2017/3/22.
- */
+
+import java.net.UnknownHostException;
+import java.util.Properties;
+
 public class Application {
 
+    private final Config config;
+
+    public Application(Config config){
+        this.config=config;
+    }
+
+    public KafkaInput generateKafkaInput(){
+        Properties kafkaConsumerProperties=new Properties();
+        kafkaConsumerProperties.putAll(config.getKafkaConsumer());
+        return new KafkaInput(new Properties(kafkaConsumerProperties),config.getKafkaTopic());
+    }
+
+    public ElasticOutput generateElasticOutput() throws UnknownHostException {
+        return new ElasticOutput(config.getElasticIndex(),config.getElasticIndexType(),
+                config.getElasticSetting(),config.getElasticTransportAddress());
+    }
+
+
+    public static void main(String[] args) {
+
+        try {
+            Application application=new Application(Config.readConfig());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }

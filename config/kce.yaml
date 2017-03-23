@@ -1,0 +1,13 @@
+kafkaTopic: wxf_ngx
+elasticIndex: wxf
+elasticIndexType: wxf_ngx
+elasticTransportAddress: ["127.0.0.1"]
+kafkaConsumer:
+  bootstrap.servers: localhost:9092
+  group.id: test
+  enable.auto.commit: false
+  key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+elasticSetting:
+  cluster.name: elasticsearch
+
