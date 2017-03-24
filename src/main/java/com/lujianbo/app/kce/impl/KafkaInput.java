@@ -36,14 +36,6 @@ public class KafkaInput implements Supplier<ConsumerRecord<byte[], byte[]>> {
         isAutoCommit="true".equals(properties.getProperty("enable.auto.commit"));
     }
 
-    public void commitAsync(){
-        consumer.commitAsync();
-    }
-
-    private void reConnect() {
-        this.consumer.close();
-        init();
-    }
 
     @Override
     public ConsumerRecord<byte[], byte[]> get() {

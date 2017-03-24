@@ -1,9 +1,6 @@
 package com.lujianbo.app.kce.impl;
 
-import com.lujianbo.app.kce.common.Config;
 import com.lujianbo.app.kce.common.TaskFactory;
-import com.lujianbo.app.kce.impl.ElasticOutput;
-import com.lujianbo.app.kce.impl.KafkaInput;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.net.UnknownHostException;

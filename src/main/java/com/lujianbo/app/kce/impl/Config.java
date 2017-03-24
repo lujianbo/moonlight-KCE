@@ -1,4 +1,4 @@
-package com.lujianbo.app.kce.common;
+package com.lujianbo.app.kce.impl;
 
 import org.yaml.snakeyaml.Yaml;
 

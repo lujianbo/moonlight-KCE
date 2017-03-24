@@ -1,6 +1,8 @@
 package com.lujianbo.app.kce.common;
 
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +18,6 @@ import java.util.function.Supplier;
 public class BatchProcessor<I, O> {
 
     private ExecutorService producerThread;
-
     private ExecutorService consumerThread;
 
     private List<ConsumerWorker> consumerWorkers;
@@ -24,7 +25,6 @@ public class BatchProcessor<I, O> {
 
     private int threadCount;
     private int maxBatchSize;
-
     private TaskFactory<I, O> taskFactory;
 
     private int index = 0;
@@ -53,11 +53,20 @@ public class BatchProcessor<I, O> {
         }
     }
 
+    public void stop() {
+        this.producerWorker.close();
+        consumerWorkers.forEach(ConsumerWorker::close);
+        this.producerThread.shutdownNow();
+        this.consumerThread.shutdownNow();
+    }
+
     private class ProducerWorker implements Runnable {
 
         private Supplier<I> supplier;
 
         private Function<I, O> function;
+
+        private boolean isRunning=true;
 
         public ProducerWorker(Supplier<I> supplier, Function<I, O> function) {
             this.supplier = supplier;
@@ -66,7 +75,7 @@ public class BatchProcessor<I, O> {
 
         @Override
         public void run() {
-            while (true) {
+            while (isRunning) {
                 try {
                     I input = supplier.get();
                     O output = function.apply(input);
@@ -75,6 +84,10 @@ public class BatchProcessor<I, O> {
                     break;
                 }
             }
+        }
+
+        public void close() {
+            isRunning=false;
         }
     }
 
@@ -94,6 +107,8 @@ public class BatchProcessor<I, O> {
 
         private Consumer<Collection<O>> consumer;
 
+        private boolean isRunning=true;
+
         public ConsumerWorker(int size, Consumer<Collection<O>> consumer) {
             this.queue = new ReadWriteQueue<>(size);
             this.consumer = consumer;
@@ -105,7 +120,7 @@ public class BatchProcessor<I, O> {
 
         @Override
         public void run() {
-            while (true) {
+            while (isRunning) {
                 try {
                     Collection<O> collection = queue.fetchQueueForRead();
                     if (collection.isEmpty()) {
@@ -117,6 +132,10 @@ public class BatchProcessor<I, O> {
                     break;
                 }
             }
+        }
+
+        public void close() {
+            this.isRunning=false;
         }
     }
 }
