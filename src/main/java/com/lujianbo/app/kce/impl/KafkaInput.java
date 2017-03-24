@@ -1,7 +1,6 @@
-package com.lujianbo.app.kce;
+package com.lujianbo.app.kce.impl;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 

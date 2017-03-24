@@ -1,4 +1,4 @@
-package com.lujianbo.app.kce;
+package com.lujianbo.app.kce.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -14,11 +14,12 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created by jianbo on 2017/3/23.
  */
-public class ElasticOutput implements Closeable{
+public class ElasticOutput implements Closeable,Consumer<Collection<byte[]>>{
 
     private TransportClient client;
 
@@ -41,15 +42,17 @@ public class ElasticOutput implements Closeable{
         this.client = preBuiltTransportClient;
     }
 
-    public void put(Collection<byte[]> sources) {
+
+    public void close() {
+        this.client.close();
+    }
+
+    @Override
+    public void accept(Collection<byte[]> sources) {
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         for (byte[] source : sources) {
             bulkRequest.add(client.prepareIndex(index, type).setSource(source));
         }
         BulkResponse bulkResponse = bulkRequest.get();
-    }
-
-    public void close() {
-        this.client.close();
     }
 }

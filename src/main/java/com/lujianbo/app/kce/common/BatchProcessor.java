@@ -7,79 +7,113 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * Created by jianbo on 2017/3/23.
  */
-public class BatchProcessor<T> {
+public class BatchProcessor<I, O> {
 
     private ExecutorService producerThread;
 
     private ExecutorService consumerThread;
 
-    private Supplier<T> supplier;
+    private List<ConsumerWorker> consumerWorkers;
+    private ProducerWorker producerWorker;
 
-    private final List<ConsumerWorker> consumerWorkers;
+    private int threadCount;
+    private int maxBatchSize;
 
-    private int index=0;
+    private TaskFactory<I, O> taskFactory;
 
-    private BatchProcessor(int threadCount,int maxBatchSize){
-        consumerWorkers =new ArrayList<>(threadCount);
-        for (int i=0;i<threadCount;i++){
-            consumerWorkers.add(new ConsumerWorker(maxBatchSize));
-        }
+    private int index = 0;
+
+    public BatchProcessor(TaskFactory<I, O> taskFactory) throws Exception {
+        this.taskFactory = taskFactory;
+        this.threadCount = taskFactory.workThreadNumber();
+        this.maxBatchSize = taskFactory.maxBatchSize();
         init();
     }
 
-    private void init(){
+    public void init() throws Exception {
+        this.producerWorker = new ProducerWorker(taskFactory.generateProducer(), taskFactory.generateFunction());
+        consumerWorkers = new ArrayList<>(threadCount);
+        for (int i = 0; i < threadCount; i++) {
+            consumerWorkers.add(new ConsumerWorker(maxBatchSize, taskFactory.generateConsumer()));
+        }
+    }
 
-        producerThread=Executors.newSingleThreadExecutor();
-        consumerThread= Executors.newFixedThreadPool(consumerWorkers.size());
-        //init producer
-        producerThread.execute(() -> {
-            while (true){
-                try {
-                    T object=supplier.get();
-                    index=(index+1)%consumerWorkers.size();
-                    consumerWorkers.get(index).put(object);
-                }catch (Exception e){
-                    break;
-                }
-            }
-        });
-        //init consumer
+    public void start() throws Exception {
+        producerThread = Executors.newSingleThreadExecutor();
+        consumerThread = Executors.newFixedThreadPool(threadCount);
+        producerThread.execute(producerWorker);
         for (ConsumerWorker consumerWorker : consumerWorkers) {
             consumerThread.submit(consumerWorker);
         }
     }
 
+    private class ProducerWorker implements Runnable {
 
-    private class ConsumerWorker implements Runnable{
+        private Supplier<I> supplier;
 
-        private ReadWriteQueue<T> queue;
+        private Function<I, O> function;
 
-        private Consumer<Collection<T>> consumer;
-
-        public ConsumerWorker(int size){
-            queue=new ReadWriteQueue<T>(size);
+        public ProducerWorker(Supplier<I> supplier, Function<I, O> function) {
+            this.supplier = supplier;
+            this.function = function;
         }
 
-        public void put(T object) throws InterruptedException {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    I input = supplier.get();
+                    O output = function.apply(input);
+                    dispatch(output);
+                } catch (Exception e) {
+                    break;
+                }
+            }
+        }
+    }
+
+
+    private void dispatch(O output) {
+        index = (index + 1) % consumerWorkers.size();
+        try {
+            consumerWorkers.get(index).put(output);
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+    private class ConsumerWorker implements Runnable {
+
+        private ReadWriteQueue<O> queue;
+
+        private Consumer<Collection<O>> consumer;
+
+        public ConsumerWorker(int size, Consumer<Collection<O>> consumer) {
+            this.queue = new ReadWriteQueue<>(size);
+            this.consumer = consumer;
+        }
+
+        public void put(O object) throws InterruptedException {
             this.queue.put(object);
         }
 
         @Override
         public void run() {
-            while (true){
+            while (true) {
                 try {
-                    Collection<T> collection=queue.fetchQueueForRead();
-                    if (collection.isEmpty()){
+                    Collection<O> collection = queue.fetchQueueForRead();
+                    if (collection.isEmpty()) {
                         Thread.sleep(1000);
-                    }else {
+                    } else {
                         consumer.accept(collection);
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     break;
                 }
             }

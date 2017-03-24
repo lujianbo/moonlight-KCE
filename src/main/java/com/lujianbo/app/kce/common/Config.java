@@ -1,13 +1,9 @@
-package com.lujianbo.app.kce;
+package com.lujianbo.app.kce.common;
 
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by jianbo on 2017/3/23.
@@ -22,6 +18,8 @@ public class Config {
     private String kafkaTopic;
     private String elasticIndex;
     private String elasticIndexType;
+    private String maxBatchSize;
+    private String workerThreadNumber;
     private List<String> elasticTransportAddress;
     private Map<String,String> kafkaConsumer;
     private Map<String,String> elasticSetting;
@@ -56,6 +54,22 @@ public class Config {
 
     public void setElasticTransportAddress(List<String> elasticTransportAddress) {
         this.elasticTransportAddress = elasticTransportAddress;
+    }
+
+    public String getMaxBatchSize() {
+        return maxBatchSize;
+    }
+
+    public void setMaxBatchSize(String maxBatchSize) {
+        this.maxBatchSize = maxBatchSize;
+    }
+
+    public String getWorkerThreadNumber() {
+        return workerThreadNumber;
+    }
+
+    public void setWorkerThreadNumber(String workerThreadNumber) {
+        this.workerThreadNumber = workerThreadNumber;
     }
 
     public Map<String, String> getKafkaConsumer() {
