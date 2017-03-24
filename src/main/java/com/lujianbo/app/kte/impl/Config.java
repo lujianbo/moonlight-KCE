@@ -1,4 +1,4 @@
-package com.lujianbo.app.kce.impl;
+package com.lujianbo.app.kte.impl;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -12,7 +12,7 @@ public class Config {
 
     public static Config readConfig(){
         Yaml yaml = new Yaml();
-        return yaml.loadAs(Config.class.getClassLoader().getResourceAsStream("kce.yaml"),Config.class);
+        return yaml.loadAs(Config.class.getClassLoader().getResourceAsStream("kte.yaml"),Config.class);
     }
 
     private String kafkaTopic;

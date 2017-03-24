@@ -1,8 +1,8 @@
-package com.lujianbo.app.kce;
+package com.lujianbo.app.kte;
 
-import com.lujianbo.app.kce.common.BatchProcessor;
-import com.lujianbo.app.kce.impl.Config;
-import com.lujianbo.app.kce.impl.KTETaskFactory;
+import com.lujianbo.app.kte.common.BatchProcessor;
+import com.lujianbo.app.kte.impl.Config;
+import com.lujianbo.app.kte.impl.KTETaskFactory;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 public class Application {
