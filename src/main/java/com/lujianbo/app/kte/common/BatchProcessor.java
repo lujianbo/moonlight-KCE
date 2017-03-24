@@ -58,13 +58,22 @@ public class BatchProcessor<I, O> {
         this.consumerThread.shutdownNow();
     }
 
+    private void dispatch(O output) {
+        index = (index + 1) % consumerWorkers.size();
+        try {
+            consumerWorkers.get(index).put(output);
+        } catch (InterruptedException e) {
+
+        }
+    }
+
     private class ProducerWorker implements Runnable {
 
         private Supplier<I> supplier;
 
         private Function<I, O> function;
 
-        private boolean isRunning=true;
+        private boolean isRunning = true;
 
         public ProducerWorker(Supplier<I> supplier, Function<I, O> function) {
             this.supplier = supplier;
@@ -85,17 +94,7 @@ public class BatchProcessor<I, O> {
         }
 
         public void close() {
-            isRunning=false;
-        }
-    }
-
-
-    private void dispatch(O output) {
-        index = (index + 1) % consumerWorkers.size();
-        try {
-            consumerWorkers.get(index).put(output);
-        } catch (InterruptedException e) {
-
+            isRunning = false;
         }
     }
 
@@ -105,7 +104,7 @@ public class BatchProcessor<I, O> {
 
         private Consumer<Collection<O>> consumer;
 
-        private boolean isRunning=true;
+        private boolean isRunning = true;
 
         public ConsumerWorker(int size, Consumer<Collection<O>> consumer) {
             this.queue = new BatchQueue<>(size);
@@ -133,7 +132,7 @@ public class BatchProcessor<I, O> {
         }
 
         public void close() {
-            this.isRunning=false;
+            this.isRunning = false;
         }
     }
 }

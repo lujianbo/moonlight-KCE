@@ -3,7 +3,6 @@ package com.lujianbo.app.kte.impl;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Properties;
@@ -14,13 +13,10 @@ import java.util.function.Supplier;
  */
 public class KafkaInput implements Supplier<ConsumerRecord<byte[], byte[]>> {
 
-    private KafkaConsumer<byte[], byte[]> consumer;
-
     private final Properties properties;
-
     private final String topic;
-
-    private  boolean isAutoCommit;
+    private KafkaConsumer<byte[], byte[]> consumer;
+    private boolean isAutoCommit;
 
     private Iterator<ConsumerRecord<byte[], byte[]>> iterator;
 
@@ -33,17 +29,17 @@ public class KafkaInput implements Supplier<ConsumerRecord<byte[], byte[]>> {
     private void init() {
         this.consumer = new KafkaConsumer<>(properties);
         this.consumer.subscribe(Collections.singletonList(topic));
-        isAutoCommit="true".equals(properties.getProperty("enable.auto.commit"));
+        isAutoCommit = "true".equals(properties.getProperty("enable.auto.commit"));
     }
 
 
     @Override
     public ConsumerRecord<byte[], byte[]> get() {
-        ConsumerRecord<byte[], byte[]> result=null;
-        while (result==null){
-            if (this.iterator!=null&&iterator.hasNext()){
-                result= iterator.next();
-            }else {
+        ConsumerRecord<byte[], byte[]> result = null;
+        while (result == null) {
+            if (this.iterator != null && iterator.hasNext()) {
+                result = iterator.next();
+            } else {
                 if (!isAutoCommit) {
                     consumer.commitAsync();
                 }

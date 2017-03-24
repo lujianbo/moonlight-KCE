@@ -9,8 +9,8 @@ public class Application {
 
     public static void main(String[] args) {
         try {
-            KTETaskFactory kteTaskFactory=new KTETaskFactory(Config.readConfig());
-            BatchProcessor<ConsumerRecord<byte[], byte[]>,byte[]> batchProcessor=new BatchProcessor<>(kteTaskFactory);
+            KTETaskFactory kteTaskFactory = new KTETaskFactory(Config.readConfig());
+            BatchProcessor<ConsumerRecord<byte[], byte[]>, byte[]> batchProcessor = new BatchProcessor<>(kteTaskFactory);
             batchProcessor.start();
             Runtime.getRuntime().addShutdownHook(new Thread(batchProcessor::stop));
         } catch (Exception e) {

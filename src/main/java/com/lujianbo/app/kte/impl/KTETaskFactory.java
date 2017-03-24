@@ -20,6 +20,7 @@ public class KTETaskFactory implements TaskFactory<ConsumerRecord<byte[], byte[]
     public KTETaskFactory(Config config) {
         this.config = config;
     }
+
     public int workThreadNumber() {
         return Integer.valueOf(config.getWorkerThreadNumber());
     }

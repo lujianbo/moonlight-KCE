@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * Created by jianbo on 2017/3/23.
  */
-public class ElasticOutput implements Closeable,Consumer<Collection<byte[]>>{
+public class ElasticOutput implements Closeable, Consumer<Collection<byte[]>> {
 
     private TransportClient client;
 
@@ -27,7 +27,7 @@ public class ElasticOutput implements Closeable,Consumer<Collection<byte[]>>{
 
     private String type;
 
-    public ElasticOutput(String index,String type,Map<String,String> setting,List<String> addresses) throws UnknownHostException {
+    public ElasticOutput(String index, String type, Map<String, String> setting, List<String> addresses) throws UnknownHostException {
         this.index = index;
         this.type = type;
         Settings settings = Settings.builder()

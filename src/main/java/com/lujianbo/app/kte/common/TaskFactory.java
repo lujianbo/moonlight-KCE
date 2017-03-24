@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * Created by jianbo on 2017/3/24.
  */
-public interface  TaskFactory<I, O> {
+public interface TaskFactory<I, O> {
 
     int workThreadNumber();
 

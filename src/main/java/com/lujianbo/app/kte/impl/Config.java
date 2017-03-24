@@ -10,19 +10,19 @@ import java.util.Map;
  */
 public class Config {
 
-    public static Config readConfig(){
-        Yaml yaml = new Yaml();
-        return yaml.loadAs(Config.class.getClassLoader().getResourceAsStream("kte.yaml"),Config.class);
-    }
-
     private String kafkaTopic;
     private String elasticIndex;
     private String elasticIndexType;
     private String maxBatchSize;
     private String workerThreadNumber;
     private List<String> elasticTransportAddress;
-    private Map<String,String> kafkaConsumer;
-    private Map<String,String> elasticSetting;
+    private Map<String, String> kafkaConsumer;
+    private Map<String, String> elasticSetting;
+
+    public static Config readConfig() {
+        Yaml yaml = new Yaml();
+        return yaml.loadAs(Config.class.getClassLoader().getResourceAsStream("kte.yaml"), Config.class);
+    }
 
     public String getKafkaTopic() {
         return kafkaTopic;
