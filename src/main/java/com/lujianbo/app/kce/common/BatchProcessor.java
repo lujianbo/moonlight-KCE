@@ -1,8 +1,6 @@
 package com.lujianbo.app.kce.common;
 
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -103,14 +101,14 @@ public class BatchProcessor<I, O> {
 
     private class ConsumerWorker implements Runnable {
 
-        private ReadWriteQueue<O> queue;
+        private BatchQueue<O> queue;
 
         private Consumer<Collection<O>> consumer;
 
         private boolean isRunning=true;
 
         public ConsumerWorker(int size, Consumer<Collection<O>> consumer) {
-            this.queue = new ReadWriteQueue<>(size);
+            this.queue = new BatchQueue<>(size);
             this.consumer = consumer;
         }
 

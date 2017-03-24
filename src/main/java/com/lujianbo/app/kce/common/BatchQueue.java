@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by jianbo on 2017/3/23.
  */
-public class ReadWriteQueue<T> {
+public class BatchQueue<T> {
 
     private final int maxSize;
 
@@ -19,7 +19,7 @@ public class ReadWriteQueue<T> {
 
     private Condition waitWrite = lock.newCondition();
 
-    public ReadWriteQueue(int maxSize) {
+    public BatchQueue(int maxSize) {
         this.maxSize = maxSize;
     }
 
