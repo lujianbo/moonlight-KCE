@@ -1,7 +1,7 @@
 kafkaTopic: wxf_ngx
 elasticIndex: wxf
 elasticIndexType: wxf_ngx
-elasticTransportAddress: ["127.0.0.1"]
+elasticTransportAddress: ["127.0.0.1:9093"]
 kafkaConsumer:
   bootstrap.servers: localhost:9092
   group.id: test
