@@ -1,5 +1,6 @@
 package com.lujianbo.app.kte.common;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
@@ -13,7 +14,7 @@ public class BatchQueue<T> {
 
     private final int maxSize;
 
-    private AtomicReference<ConcurrentLinkedQueue<T>> readerQueue = new AtomicReference<>(new ConcurrentLinkedQueue<T>());
+    private AtomicReference<ArrayList<T>> readerQueue;
 
     private ReentrantLock lock = new ReentrantLock();
 
@@ -21,17 +22,21 @@ public class BatchQueue<T> {
 
     public BatchQueue(int maxSize) {
         this.maxSize = maxSize;
+        this.readerQueue = new AtomicReference<>(new ArrayList<T>(maxSize));
     }
 
-    public void put(T object) throws InterruptedException {
+    /**
+     * 非线程安全操作
+     * */
+    public boolean put(T object){
         if (readerQueue.get().size() >= maxSize) {
-            waitWrite.await();
+            return false;
         }
-        readerQueue.get().add(object);
+        return readerQueue.get().add(object);
     }
 
     public Collection<T> fetchQueueForRead() {
-        ConcurrentLinkedQueue<T> readQueue = readerQueue.getAndSet(new ConcurrentLinkedQueue<T>());
+        ArrayList<T> readQueue = readerQueue.getAndSet(new ArrayList<T>(maxSize));
         waitWrite.signalAll();
         return readQueue;
     }

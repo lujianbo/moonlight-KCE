@@ -58,13 +58,21 @@ public class BatchProcessor<I, O> {
         this.consumerThread.shutdownNow();
     }
 
-    private void dispatch(O output) {
-        index = (index + 1) % consumerWorkers.size();
-        try {
-            consumerWorkers.get(index).put(output);
-        } catch (InterruptedException e) {
-
+    private void dispatch(O output) throws InterruptedException {
+        int tryCount=0;
+        while (true){
+            index = (index + 1) % consumerWorkers.size();
+            if (consumerWorkers.get(index).put(output)){
+                break;
+            }else {
+                tryCount++;
+                //重试多次后无果
+                if (tryCount>=consumerWorkers.size()){
+                    Thread.sleep(100);
+                }
+            }
         }
+
     }
 
     private class ProducerWorker implements Runnable {
@@ -111,8 +119,8 @@ public class BatchProcessor<I, O> {
             this.consumer = consumer;
         }
 
-        public void put(O object) throws InterruptedException {
-            this.queue.put(object);
+        public boolean put(O object) {
+            return this.queue.put(object);
         }
 
         @Override
